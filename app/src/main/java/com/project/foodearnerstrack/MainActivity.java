@@ -6,13 +6,20 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     Context context;
+    TextView textView1, textView2, textView3;
+    Button button;
+    ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,18 +28,30 @@ public class MainActivity extends AppCompatActivity {
 
         setActionBar();
 
-        if (isConnected()){
+        textView1 = findViewById(R.id.textView1);
+        textView2 = findViewById(R.id.textView2);
+        textView3 = findViewById(R.id.textView3);
+        button = findViewById(R.id.button);
+        imageView = findViewById(R.id.imageView);
+        WebView webView = findViewById(R.id.webView);
 
+        if (isConnected()){
+            webView.setWebViewClient(new WebViewClient());
+            webView.loadUrl("https://www.foodearnerstrack.com/login.php");
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+        }else {
+            imageView.setVisibility(View.VISIBLE);
+            textView1.setVisibility(View.VISIBLE);
+            textView2.setVisibility(View.VISIBLE);
+            textView3.setVisibility(View.VISIBLE);
+            button.setVisibility(View.VISIBLE);
         }
 
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        WebView webView = findViewById(R.id.webView);
-        webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("https://www.foodearnerstrack.com/login.php");
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+
     }
 
 
