@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView1, textView2, textView3;
     Button button;
     ImageView imageView;
+    WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,19 +35,33 @@ public class MainActivity extends AppCompatActivity {
         textView3 = findViewById(R.id.textView3);
         button = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
-        WebView webView = findViewById(R.id.webView);
+        webView = findViewById(R.id.webView);
 
         if (isConnected()){
+            webView = findViewById(R.id.webView);
             webView.setWebViewClient(new WebViewClient());
             webView.loadUrl("https://www.foodearnerstrack.com/login.php");
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true);
-        }else {
+        }else if(!isConnected()) {
+            webView = findViewById(R.id.webView);
+            webView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             textView1.setVisibility(View.VISIBLE);
             textView2.setVisibility(View.VISIBLE);
             textView3.setVisibility(View.VISIBLE);
             button.setVisibility(View.VISIBLE);
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    webView.setWebViewClient(new WebViewClient());
+                    webView.loadUrl("https://www.foodearnerstrack.com/login.php");
+                    WebSettings webSettings = webView.getSettings();
+                    webSettings.setJavaScriptEnabled(true);
+                }
+            });
         }
 
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
