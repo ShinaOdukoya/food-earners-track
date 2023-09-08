@@ -1,11 +1,16 @@
 package com.project.foodearnerstrack;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button button;
     ImageView imageView;
     WebView webView;
+//    String wUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,60 +39,96 @@ public class MainActivity extends AppCompatActivity {
         textView3 = findViewById(R.id.textView3);
         button = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
-//        webView = findViewById(R.id.webView);
+        webView = findViewById(R.id.webView);
 
-        try {
-            if (isConnected()) {
-//              webView = findViewById(R.id.webView);
-                internetConnected();
-            } else if (!isConnected()) {
-//              webView = findViewById(R.id.webView);
-                noInternetConnection();
-
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        internetConnected();
-                    }
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            noInternetConnection();
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    internetConnected();
-                }
-            });
-        }
-
-//        if (isConnected()){
-////            webView = findViewById(R.id.webView);
-//            webView.setWebViewClient(new WebViewClient());
-//            webView.loadUrl("https://www.foodearnerstrack.com/login.php");
-//            WebSettings webSettings = webView.getSettings();
-//            webSettings.setJavaScriptEnabled(true);
-//        }else if(!isConnected()) {
-////            webView = findViewById(R.id.webView);
-//            webView.setVisibility(View.GONE);
-//            imageView.setVisibility(View.VISIBLE);
-//            textView1.setVisibility(View.VISIBLE);
-//            textView2.setVisibility(View.VISIBLE);
-//            textView3.setVisibility(View.VISIBLE);
-//            button.setVisibility(View.VISIBLE);
+//        wUrl = "https://api.whatsapp.com/send?phone=2348169822413&text=Hi+Food+Earners+track,+I+want+to+make+an+inquiry+about";
+//        try {
+//            if (isConnected()) {
+////              webView = findViewById(R.id.webView);
+//                internetConnected();
+//            } else if (!isConnected()) {
+////              webView = findViewById(R.id.webView);
+//                noInternetConnection();
 //
+//                button.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        internetConnected();
+//                    }
+//                });
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            noInternetConnection();
 //            button.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View view) {
-//
-//                    webView.setWebViewClient(new WebViewClient());
-//                    webView.loadUrl("https://www.foodearnerstrack.com/login.php");
-//                    WebSettings webSettings = webView.getSettings();
-//                    webSettings.setJavaScriptEnabled(true);
+//                    internetConnected();
 //                }
 //            });
 //        }
+
+        if (isConnected()){
+            webView = findViewById(R.id.webView);
+            webView.setWebViewClient(new WebViewClient(){
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+//                    return super.shouldOverrideUrlLoading(view, url);
+                    if(url.equals(UrlConst.whatsappUrl) || url.startsWith("tel:") || url.startsWith("whatsapp:")) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(url));
+                        startActivity(intent);
+                        return true;
+                    }
+                    if (!isConnected()){
+                        webView.setVisibility(View.GONE);
+                        imageView.setVisibility(View.VISIBLE);
+                        textView1.setVisibility(View.VISIBLE);
+                        textView2.setVisibility(View.VISIBLE);
+                        textView3.setVisibility(View.VISIBLE);
+                        button.setVisibility(View.VISIBLE);
+
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            webView.loadUrl(UrlConst.login);
+            WebSettings webSettings = webView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+        }else if(!isConnected()) {
+            webView = findViewById(R.id.webView);
+            webView.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+            textView1.setVisibility(View.VISIBLE);
+            textView2.setVisibility(View.VISIBLE);
+            textView3.setVisibility(View.VISIBLE);
+            button.setVisibility(View.VISIBLE);
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    webView.setWebViewClient(new WebViewClient(){
+                        @Override
+                        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+//                            return super.shouldOverrideUrlLoading(view, url);
+                            if(url.equals(UrlConst.whatsappUrl) || url.startsWith("tel:") || url.startsWith("whatsapp:")) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse(url));
+                                startActivity(intent);
+                                return true;
+                            }
+
+                            return false;
+                        }
+                    });
+                    webView.loadUrl(UrlConst.login);
+                    WebSettings webSettings = webView.getSettings();
+                    webSettings.setJavaScriptEnabled(true);
+                }
+            });
+        }
 
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -105,23 +147,46 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().
                 getSystemService(context.CONNECTIVITY_SERVICE);
 
-        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
+        if(connectivityManager.getActiveNetworkInfo() != null &&
+                connectivityManager.getActiveNetworkInfo().isConnected() &&
+                connectivityManager.getActiveNetworkInfo().isAvailable())
+        {
+            return true;
+        }
+        return false;
     }
 
-    private void internetConnected() {
-        webView = findViewById(R.id.webView);
-        webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("https://www.foodearnerstrack.com/login.php");
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-    }
+//    private void internetConnected() {
+//        webView = findViewById(R.id.webView);
+//        webView.setWebViewClient(new WebViewClient(){
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+////                return super.shouldOverrideUrlLoading(view, url);
+//                if(url.equals(UrlConst.whatsappUrl) || url.startsWith("tel:") || url.startsWith("whatsapp:")) {
+//                    Intent intent = new Intent(Intent.ACTION_VIEW);
+//                    intent.setData(Uri.parse(url));
+//                    startActivity(intent);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//        webView.loadUrl(UrlConst.login);
+//        WebSettings webSettings = webView.getSettings();
+//        webSettings.setJavaScriptEnabled(true);
+//    }
 
-    private void noInternetConnection() {
-        webView.setVisibility(View.GONE);
-        imageView.setVisibility(View.VISIBLE);
-        textView1.setVisibility(View.VISIBLE);
-        textView2.setVisibility(View.VISIBLE);
-        textView3.setVisibility(View.VISIBLE);
-        button.setVisibility(View.VISIBLE);
+//    private void noInternetConnection() {
+//        webView.setVisibility(View.GONE);
+//        imageView.setVisibility(View.VISIBLE);
+//        textView1.setVisibility(View.VISIBLE);
+//        textView2.setVisibility(View.VISIBLE);
+//        textView3.setVisibility(View.VISIBLE);
+//        button.setVisibility(View.VISIBLE);
+//    }
+
+
+    private void testMethod(){
+        String test = "234";
     }
 }
